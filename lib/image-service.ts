@@ -4,7 +4,7 @@
  * Configure via environment variables
  */
 
-type ImageProvider = 'dalle' | 'stability' | 'replicate' | 'stable-diffusion' | 'imagen' | 'mock' | 'custom';
+type ImageProvider = 'dalle' | 'stability' | 'replicate' | 'stable-diffusion' | 'mock' | 'custom';
 
 interface ImageConfig {
   provider: ImageProvider;
@@ -32,8 +32,6 @@ export async function generateImage(prompt: string): Promise<GeneratedImage> {
         return await generateReplicateImage(prompt, config);
       case 'stable-diffusion':
         return await generateStableDiffusionImage(prompt, config);
-      case 'imagen':
-        return await generateImagenImage(prompt, config);
       case 'mock':
         return await generateMockImage(prompt, config);
       case 'custom':
@@ -57,11 +55,11 @@ function getImageConfig(): ImageConfig {
     const env = (typeof process !== 'undefined' && process.env ? process.env : {}) as Record<string, string | undefined>;
     
     const provider = (env.IMAGE_PROVIDER || 'mock') as ImageProvider; // Default to mock for safety
-    const apiKey = env.IMAGE_API_KEY || env.GEMINI_API_KEY || env.LLM_API_KEY;
+    const apiKey = env.IMAGE_API_KEY || env.LLM_API_KEY;
 
     // Mock provider doesn't need an API key
     if (provider !== 'mock' && !apiKey) {
-      throw new Error('IMAGE_API_KEY, GEMINI_API_KEY, or LLM_API_KEY environment variable is required');
+      throw new Error('IMAGE_API_KEY or LLM_API_KEY environment variable is required');
     }
 
     return {
@@ -165,108 +163,6 @@ async function generateMockImage(prompt: string, config: ImageConfig): Promise<G
       prompt,
       id: `mock-fallback-${Math.random().toString(36).substr(2, 9)}`,
     };
-  }
-}
-
-async function generateImagenImage(prompt: string, config: ImageConfig): Promise<GeneratedImage> {
-  // Google Imagen is available through Vertex AI
-  // This requires a GCP project and Vertex AI API enabled
-  const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
-  const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
-  
-  if (!projectId) {
-    throw new Error(
-      'GOOGLE_CLOUD_PROJECT_ID environment variable is required for Imagen. ' +
-      'Get your project ID from Google Cloud Console.'
-    );
-  }
-
-  // Check for service account credentials
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    throw new Error(
-      'GOOGLE_APPLICATION_CREDENTIALS environment variable is required for Imagen. ' +
-      'This should point to your service account JSON key file. ' +
-      'See README for setup instructions. ' +
-      'Alternatively, use DALL-E which only requires an API key.'
-    );
-  }
-
-  try {
-    // Get access token from service account credentials
-    const { GoogleAuth } = await import('google-auth-library');
-    const auth = new GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-    });
-    
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-
-    if (!accessToken.token) {
-      throw new Error('Failed to get access token from service account');
-    }
-
-    // Use Vertex AI REST API with authenticated token
-    const endpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/imagegeneration@006:predict`;
-    
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken.token}`,
-      },
-      body: JSON.stringify({
-        instances: [
-          {
-            prompt: prompt,
-          },
-        ],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: '1:1',
-          safetyFilterLevel: 'block_some',
-          personGeneration: 'allow_all',
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Imagen API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    
-    // Vertex AI Imagen returns base64 encoded image
-    const imageBase64 = data.predictions?.[0]?.bytesBase64Encoded || 
-                        data.predictions?.[0]?.imageBase64;
-    
-    if (!imageBase64) {
-      throw new Error('No image data in Imagen API response');
-    }
-
-    // Convert base64 to data URL
-    const imageUrl = `data:image/png;base64,${imageBase64}`;
-
-    return {
-      url: imageUrl,
-      prompt,
-      id: `imagen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    };
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('GOOGLE_APPLICATION_CREDENTIALS')) {
-        throw error;
-      }
-      throw new Error(
-        `Imagen API error: ${error.message}. ` +
-        `Make sure: 1) Vertex AI API is enabled in Google Cloud Console, ` +
-        `2) GOOGLE_APPLICATION_CREDENTIALS points to a valid service account key file, ` +
-        `3) The service account has Vertex AI User role. ` +
-        `Alternatively, use DALL-E which only requires an API key.`
-      );
-    }
-    throw error;
   }
 }
 

@@ -25,7 +25,7 @@ A Next.js application where you can create a virtual gallery wall by generating 
 
    ```env
    # Image Generation Configuration
-   # Set the provider: 'mock', 'dalle', 'stability', 'replicate', 'stable-diffusion', 'imagen', or 'custom'
+   # Set the provider: 'mock', 'dalle', 'stability', 'replicate', 'stable-diffusion', or 'custom'
    # For development/testing: 'mock' (no API key needed!)
    # Recommended for Cloudflare Pages: 'dalle', 'stability', or 'replicate'
    IMAGE_PROVIDER=mock
@@ -44,11 +44,6 @@ A Next.js application where you can create a virtual gallery wall by generating 
 
    # Optional: Custom base URL (only needed for 'stable-diffusion' or 'custom' provider)
    # IMAGE_BASE_URL=
-
-   # For Imagen (Vertex AI) only - requires service account setup:
-   # GOOGLE_CLOUD_PROJECT_ID=your-project-id
-   # GOOGLE_CLOUD_LOCATION=us-central1
-   # GOOGLE_APPLICATION_CREDENTIALS=./path/to/service-account-key.json
    ```
 
 3. **Run the development server:**
@@ -97,39 +92,6 @@ npm run dev
 - Requires `IMAGE_BASE_URL` pointing to your Stable Diffusion API endpoint
 - Get API access from providers like [Replicate](https://replicate.com), [Stability AI](https://platform.stability.ai), or self-hosted
 - Example: `IMAGE_BASE_URL=https://api.replicate.com/v1/predictions`
-
-### Google Imagen (Advanced - Requires GCP Setup)
-- Set `IMAGE_PROVIDER=imagen`
-- **Requires Vertex AI setup with service account authentication:**
-  1. **Create a Google Cloud Project**:
-     - Go to [Google Cloud Console](https://console.cloud.google.com/)
-     - Create a new project or select an existing one
-     - Note your Project ID
-  2. **Enable Vertex AI API**:
-     - In the Cloud Console, go to "APIs & Services" > "Library"
-     - Search for "Vertex AI API" and enable it
-  3. **Create a Service Account**:
-     - Go to "IAM & Admin" > "Service Accounts"
-     - Click "Create Service Account"
-     - Give it a name (e.g., "imagen-service")
-     - Grant it the "Vertex AI User" role
-     - Click "Done"
-  4. **Create and Download Service Account Key**:
-     - Click on the service account you just created
-     - Go to "Keys" tab
-     - Click "Add Key" > "Create new key"
-     - Choose JSON format
-     - Download the JSON key file
-  5. **Configure Environment Variables**:
-     ```env
-     IMAGE_PROVIDER=imagen
-     GOOGLE_CLOUD_PROJECT_ID=your-project-id
-     GOOGLE_CLOUD_LOCATION=us-central1
-     GOOGLE_APPLICATION_CREDENTIALS=./path/to/your-service-account-key.json
-     ```
-  6. **Place the JSON key file** in your project directory (and add it to `.gitignore`!)
-- Imagen generates high-quality, photorealistic images
-- **⚠️ Note**: This setup is complex and requires service account files. **Not recommended for Cloudflare Pages**. Use DALL-E, Stability AI, or Replicate instead for Cloudflare Pages deployment.
 
 ### Custom Image Provider
 - Set `IMAGE_PROVIDER=custom`
@@ -208,7 +170,7 @@ This app is perfect for Cloudflare Pages! Here's how to deploy:
 - ✅ **DALL-E** - Simple, reliable, great quality
 - ✅ **Stability AI** - High-quality Stable Diffusion models
 - ✅ **Replicate** - Access to many different models
-- ❌ **Imagen** - Not recommended (requires service account files)
+- ✅ **Mock** - Perfect for testing (no API key needed)
 
 ## Security Notes
 
