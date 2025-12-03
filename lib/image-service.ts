@@ -122,62 +122,50 @@ async function generateMockImage(prompt: string, config: ImageConfig): Promise<G
   // Generate a simple placeholder image for development/testing
   // No API key needed - perfect for testing the UI without making real API calls
   
-  // Create a simple SVG placeholder with the prompt text
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-    '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52BE80'
-  ];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  
-  // Escape HTML entities in prompt for safety
-  const escapeHtml = (text: string) => {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  };
-  
-  const promptText = escapeHtml(prompt.substring(0, 50)) + (prompt.length > 50 ? '...' : '');
-  
-  // Create an SVG image with gradient and text
-  const svg = `
-    <svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${color}88;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <rect width="1024" height="1024" fill="url(#grad)"/>
-      <text x="50%" y="45%" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
-            fill="white" text-anchor="middle" dominant-baseline="middle">
-        Mock Image
-      </text>
-      <text x="50%" y="55%" font-family="Arial, sans-serif" font-size="24" 
-            fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.9">
-        ${promptText}
-      </text>
-      <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="18" 
-            fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.7">
-        (Development Mode)
-      </text>
-    </svg>
-  `.trim();
-  
-  // Convert SVG to data URL (Edge Runtime compatible - no Buffer)
-  // Use encodeURIComponent instead of base64 for Edge Runtime compatibility
-  const imageUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
-  
-  // Add a small delay to simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500));
+  try {
+    // Create a simple SVG placeholder with the prompt text
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+      '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52BE80'
+    ];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Escape HTML entities in prompt for safety
+    const escapeHtml = (text: string) => {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+    
+    const promptText = escapeHtml(prompt.substring(0, 50)) + (prompt.length > 50 ? '...' : '');
+    
+    // Create an SVG image with gradient and text
+    const svg = `<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${color};stop-opacity:1" /><stop offset="100%" style="stop-color:${color}88;stop-opacity:1" /></linearGradient></defs><rect width="1024" height="1024" fill="url(#grad)"/><text x="50%" y="45%" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">Mock Image</text><text x="50%" y="55%" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.9">${promptText}</text><text x="50%" y="70%" font-family="Arial, sans-serif" font-size="18" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.7">(Development Mode)</text></svg>`;
+    
+    // Convert SVG to data URL (Edge Runtime compatible - no Buffer)
+    // Use encodeURIComponent instead of base64 for Edge Runtime compatibility
+    const imageUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    
+    // Generate ID without using Date.now() which might have issues
+    const id = `mock-${Math.random().toString(36).substr(2, 9)}-${Math.random().toString(36).substr(2, 9)}`;
 
-  return {
-    url: imageUrl,
-    prompt,
-    id: `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  };
+    return {
+      url: imageUrl,
+      prompt,
+      id,
+    };
+  } catch (error) {
+    // If anything fails, return a simple fallback
+    const fallbackUrl = `data:image/svg+xml,${encodeURIComponent('<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><rect width="1024" height="1024" fill="#FF6B6B"/><text x="50%" y="50%" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle">Mock Image</text></svg>')}`;
+    return {
+      url: fallbackUrl,
+      prompt,
+      id: `mock-fallback-${Math.random().toString(36).substr(2, 9)}`,
+    };
+  }
 }
 
 async function generateImagenImage(prompt: string, config: ImageConfig): Promise<GeneratedImage> {
