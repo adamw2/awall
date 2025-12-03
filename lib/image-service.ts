@@ -252,46 +252,43 @@ async function generateReplicateImage(prompt: string, config: ImageConfig): Prom
     throw new Error('No prediction ID returned from Replicate API');
   }
 
-  // Poll for completion (Replicate is async)
-  let imageUrl: string | null = null;
-  const maxAttempts = 60; // 60 attempts = ~2 minutes max
-  let attempts = 0;
+  // Check status immediately (Edge Runtime compatible - no setTimeout)
+  // Replicate predictions are async, so we check once and if not ready, 
+  // return an error with the prediction ID for client-side polling
+  const statusResponse = await fetch(`${baseURL}/v1/predictions/${predictionId}`, {
+    headers: {
+      'Authorization': `Token ${config.apiKey}`,
+    },
+  });
 
-  while (attempts < maxAttempts) {
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
-
-    const statusResponse = await fetch(`${baseURL}/v1/predictions/${predictionId}`, {
-      headers: {
-        'Authorization': `Token ${config.apiKey}`,
-      },
-    });
-
-    if (!statusResponse.ok) {
-      const error = await statusResponse.text();
-      throw new Error(`Replicate API error (status): ${statusResponse.status} - ${error}`);
-    }
-
-    const statusData = await statusResponse.json();
-
-    if (statusData.status === 'succeeded') {
-      imageUrl = statusData.output?.[0] || statusData.output;
-      break;
-    } else if (statusData.status === 'failed' || statusData.status === 'canceled') {
-      throw new Error(`Replicate prediction failed: ${statusData.error || 'Unknown error'}`);
-    }
-
-    attempts++;
+  if (!statusResponse.ok) {
+    const error = await statusResponse.text();
+    throw new Error(`Replicate API error (status): ${statusResponse.status} - ${error}`);
   }
 
-  if (!imageUrl) {
-    throw new Error('Replicate prediction timed out or did not complete');
-  }
+  const statusData = await statusResponse.json();
 
-  return {
-    url: imageUrl,
-    prompt,
-    id: `replicate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  };
+  if (statusData.status === 'succeeded') {
+    const imageUrl = statusData.output?.[0] || statusData.output;
+    if (!imageUrl) {
+      throw new Error('No image URL in Replicate response');
+    }
+    return {
+      url: imageUrl,
+      prompt,
+      id: `replicate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
+  } else if (statusData.status === 'failed' || statusData.status === 'canceled') {
+    throw new Error(`Replicate prediction failed: ${statusData.error || 'Unknown error'}`);
+  } else {
+    // Still processing - return error with prediction ID for client-side polling
+    throw new Error(
+      `Replicate prediction is still ${statusData.status}. ` +
+      `This provider requires polling which is not supported in Edge Runtime. ` +
+      `Prediction ID: ${predictionId}. ` +
+      `Please use DALL-E, Stability AI, or Mock provider instead.`
+    );
+  }
 }
 
 async function generateStableDiffusionImage(
