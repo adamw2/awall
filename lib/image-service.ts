@@ -145,8 +145,9 @@ async function generateMockImage(prompt: string, config: ImageConfig): Promise<G
     </svg>
   `.trim();
   
-  // Convert SVG to data URL
-  const imageUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+  // Convert SVG to data URL (Edge Runtime compatible - no Buffer)
+  // Use encodeURIComponent instead of base64 for Edge Runtime compatibility
+  const imageUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   
   // Add a small delay to simulate API call
   await new Promise(resolve => setTimeout(resolve, 500));

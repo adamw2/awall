@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateImage } from '@/lib/image-service';
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     const { prompt } = await request.json();

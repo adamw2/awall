@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm-service';
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     const { message } = await request.json();
