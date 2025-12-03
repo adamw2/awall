@@ -5,7 +5,17 @@ export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt } = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
+    const { prompt } = body;
 
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json(
@@ -16,12 +26,30 @@ export async function POST(request: NextRequest) {
 
     const image = await generateImage(prompt);
 
-    return NextResponse.json(image);
+    return NextResponse.json(image, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
-    console.error('Error generating image:', error);
+    // Ensure we always return valid JSON, even for unexpected errors
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error('Error generating image:', errorMessage, errorStack);
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to generate image' },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && errorStack ? { stack: errorStack } : {})
+      },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
   }
 }

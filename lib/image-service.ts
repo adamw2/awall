@@ -20,25 +20,33 @@ export interface GeneratedImage {
 }
 
 export async function generateImage(prompt: string): Promise<GeneratedImage> {
-  const config = getImageConfig();
+  try {
+    const config = getImageConfig();
 
-  switch (config.provider) {
-    case 'dalle':
-      return generateDALLEImage(prompt, config);
-    case 'stability':
-      return generateStabilityImage(prompt, config);
-    case 'replicate':
-      return generateReplicateImage(prompt, config);
-    case 'stable-diffusion':
-      return generateStableDiffusionImage(prompt, config);
-    case 'imagen':
-      return generateImagenImage(prompt, config);
-    case 'mock':
-      return generateMockImage(prompt, config);
-    case 'custom':
-      return generateCustomImage(prompt, config);
-    default:
-      throw new Error(`Unsupported image provider: ${config.provider}`);
+    switch (config.provider) {
+      case 'dalle':
+        return await generateDALLEImage(prompt, config);
+      case 'stability':
+        return await generateStabilityImage(prompt, config);
+      case 'replicate':
+        return await generateReplicateImage(prompt, config);
+      case 'stable-diffusion':
+        return await generateStableDiffusionImage(prompt, config);
+      case 'imagen':
+        return await generateImagenImage(prompt, config);
+      case 'mock':
+        return await generateMockImage(prompt, config);
+      case 'custom':
+        return await generateCustomImage(prompt, config);
+      default:
+        throw new Error(`Unsupported image provider: ${config.provider}`);
+    }
+  } catch (error) {
+    // Re-throw with more context
+    if (error instanceof Error) {
+      throw new Error(`Image generation failed: ${error.message}`);
+    }
+    throw error;
   }
 }
 

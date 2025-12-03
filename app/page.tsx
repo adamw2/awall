@@ -73,6 +73,13 @@ export default function Home() {
         body: JSON.stringify({ prompt }),
       });
 
+      // Check if response is JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -83,7 +90,9 @@ export default function Home() {
       setPrompt('');
       setShowPrompt(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      console.error('Error generating image:', err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
