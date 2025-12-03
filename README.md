@@ -6,7 +6,7 @@ A Next.js application where you can create a virtual gallery wall by generating 
 
 - 🖼️ **Gallery Wall Interface** - Full-screen wall with framed pictures
 - 🎨 **AI Image Generation** - Generate images using DALL-E, Stability AI, Replicate, or custom providers
-- ☁️ **Cloudflare Pages Ready** - Works perfectly with API key-based authentication
+- ☁️ **Vercel Optimized** - Fully compatible with Vercel's Node.js and Edge runtimes
 - 💾 **Local Storage** - Your pictures are saved locally in your browser
 - 🎯 **Simple Prompting** - Just describe what you want to see
 - 📱 **Responsive Design** - Works beautifully on all devices
@@ -139,38 +139,40 @@ Pictures are stored in your browser's `localStorage`. This means:
 - ⚠️ Clearing browser data will remove your gallery
 - ⚠️ Gallery is specific to each browser/device
 
-## Deploying to Cloudflare Pages
+## Deploying to Vercel
 
-This app is perfect for Cloudflare Pages! Here's how to deploy:
+This app is optimized for Vercel! Here's how to deploy:
 
 1. **Push your code to GitHub/GitLab/Bitbucket**
 
-2. **Connect to Cloudflare Pages**:
-   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) > Pages
-   - Click "Create a project" > "Connect to Git"
-   - Select your repository
+2. **Connect to Vercel**:
+   - Go to [Vercel](https://vercel.com/)
+   - Click "Add New..." > "Project"
+   - Import your repository from GitHub/GitLab/Bitbucket
 
-3. **Configure Build Settings**:
-   - **Framework preset**: Next.js
-   - **Build command**: `npm run build`
-   - **Build output directory**: `.next`
+3. **Vercel will auto-detect Next.js**:
+   - Framework preset: Next.js (auto-detected)
+   - Build command: `npm run build` (auto-detected)
+   - Output directory: `.next` (auto-detected)
 
 4. **Add Environment Variables**:
-   - In Cloudflare Pages settings, go to "Environment variables"
-   - Add your image generation API key:
-     - `IMAGE_PROVIDER` = `dalle` (or `stability` or `replicate`)
-     - `IMAGE_API_KEY` = `your_api_key_here`
+   - In Vercel project settings, go to "Environment Variables"
+   - Add your image generation configuration:
+     - `IMAGE_PROVIDER` = `dalle` (or `stability`, `replicate`, `mock`)
+     - `IMAGE_API_KEY` = `your_api_key_here` (not needed for `mock`)
      - Optionally: `IMAGE_MODEL` = `dall-e-3` (or your preferred model)
 
 5. **Deploy!**
-   - Cloudflare will automatically build and deploy your app
-   - Your gallery wall will be live with API key authentication
+   - Click "Deploy"
+   - Vercel will automatically build and deploy your app
+   - Your gallery wall will be live!
 
-**Recommended Providers for Cloudflare Pages:**
+**All Providers Work on Vercel:**
 - ✅ **DALL-E** - Simple, reliable, great quality
 - ✅ **Stability AI** - High-quality Stable Diffusion models
-- ✅ **Replicate** - Access to many different models
+- ✅ **Replicate** - Access to many different models (with full polling support)
 - ✅ **Mock** - Perfect for testing (no API key needed)
+- ✅ **Custom** - Any custom image generation API
 
 ## Security Notes
 

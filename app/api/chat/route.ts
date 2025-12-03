@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm-service';
 
-export const runtime = 'edge';
+// Vercel supports both Edge and Node.js runtime
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
