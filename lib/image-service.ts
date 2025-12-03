@@ -51,20 +51,33 @@ export async function generateImage(prompt: string): Promise<GeneratedImage> {
 }
 
 function getImageConfig(): ImageConfig {
-  const provider = (process.env.IMAGE_PROVIDER || 'dalle') as ImageProvider;
-  const apiKey = process.env.IMAGE_API_KEY || process.env.GEMINI_API_KEY || process.env.LLM_API_KEY;
+  try {
+    // In Edge Runtime, process.env should be available via Next.js
+    // Access it with proper typing
+    const env = (typeof process !== 'undefined' && process.env ? process.env : {}) as Record<string, string | undefined>;
+    
+    const provider = (env.IMAGE_PROVIDER || 'mock') as ImageProvider; // Default to mock for safety
+    const apiKey = env.IMAGE_API_KEY || env.GEMINI_API_KEY || env.LLM_API_KEY;
 
-  // Mock provider doesn't need an API key
-  if (provider !== 'mock' && !apiKey) {
-    throw new Error('IMAGE_API_KEY, GEMINI_API_KEY, or LLM_API_KEY environment variable is required');
+    // Mock provider doesn't need an API key
+    if (provider !== 'mock' && !apiKey) {
+      throw new Error('IMAGE_API_KEY, GEMINI_API_KEY, or LLM_API_KEY environment variable is required');
+    }
+
+    return {
+      provider,
+      apiKey: apiKey || '',
+      model: env.IMAGE_MODEL,
+      baseURL: env.IMAGE_BASE_URL,
+    };
+  } catch (error) {
+    // If config fails, default to mock
+    console.warn('Failed to get image config, defaulting to mock:', error);
+    return {
+      provider: 'mock',
+      apiKey: '',
+    };
   }
-
-  return {
-    provider,
-    apiKey: apiKey || '',
-    model: process.env.IMAGE_MODEL,
-    baseURL: process.env.IMAGE_BASE_URL,
-  };
 }
 
 async function generateDALLEImage(prompt: string, config: ImageConfig): Promise<GeneratedImage> {

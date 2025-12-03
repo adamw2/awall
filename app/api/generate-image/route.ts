@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateImage } from '@/lib/image-service';
 
 export const runtime = 'edge';
 
-export async function POST(request: NextRequest) {
+// Wrapper to ensure all errors return JSON
+async function safeHandler(request: NextRequest) {
   try {
     let body;
     try {
@@ -24,6 +24,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Dynamically import to catch module loading errors
+    let generateImage;
+    try {
+      const imageService = await import('@/lib/image-service');
+      generateImage = imageService.generateImage;
+    } catch (importError) {
+      console.error('Failed to import image service:', importError);
+      return NextResponse.json(
+        { error: 'Failed to load image service module' },
+        { status: 500 }
+      );
+    }
+
     const image = await generateImage(prompt);
 
     return NextResponse.json(image, {
@@ -34,16 +47,35 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     // Ensure we always return valid JSON, even for unexpected errors
-    const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    console.error('Error generating image:', errorMessage, errorStack);
+    console.error('Error generating image:', errorMessage);
+    if (errorStack) {
+      console.error('Stack trace:', errorStack);
+    }
     
     return NextResponse.json(
       { 
-        error: errorMessage,
-        ...(process.env.NODE_ENV === 'development' && errorStack ? { stack: errorStack } : {})
+        error: errorMessage || 'Failed to generate image',
       },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    return await safeHandler(request);
+  } catch (error) {
+    // Final fallback - if even the error handler fails, return basic JSON
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { 
         status: 500,
         headers: {
