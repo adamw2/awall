@@ -10,16 +10,14 @@ export default function TunnelBoyPage() {
       <header className="sticky top-0 z-50 border-b border-green-800/60 bg-[#0a0f0a]/95 backdrop-blur">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/tunnelboy" className="flex items-center shrink-0">
-            <span className="flex h-8 w-28 items-center justify-center overflow-hidden sm:h-9 sm:w-36">
-              <Image
-                src="/tunnelboy-logo.png"
-                alt="TunnelBoy"
-                width={280}
-                height={72}
-                className="min-h-[140%] min-w-[140%] shrink-0 object-contain object-center"
-                priority
-              />
-            </span>
+            <Image
+              src="/tunnelboy-logo.png"
+              alt="TunnelBoy"
+              width={200}
+              height={52}
+              className="h-9 w-auto object-contain object-left-top sm:h-10"
+              priority
+            />
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             <Link href="#solutions" className="text-sm font-medium text-green-400/90 hover:text-green-300">
