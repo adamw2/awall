@@ -13,9 +13,9 @@ export default function TunnelBoyPage() {
             <Image
               src="/tunnelboy-logo.png"
               alt="TunnelBoy"
-              width={200}
-              height={52}
-              className="h-9 w-auto object-contain object-left-top sm:h-10"
+              width={280}
+              height={73}
+              className="h-14 w-auto object-contain object-left-top sm:h-16 md:h-[4.5rem]"
               priority
             />
           </Link>

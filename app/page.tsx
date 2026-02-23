@@ -423,6 +423,24 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Also from awall */}
+        <section className="border-t border-zinc-200 bg-zinc-100/50 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-center text-sm font-medium text-zinc-500">
+              Also from awall:
+            </p>
+            <p className="mt-2 text-center">
+              <Link
+                href="/tunnelboy"
+                className="inline-flex items-center gap-1.5 text-base font-semibold text-zinc-900 hover:text-zinc-700"
+              >
+                TunnelBoy
+                <span className="text-zinc-400">— Vault-grade AWS tunneling. Pip-Boy themed.</span>
+              </Link>
+            </p>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
