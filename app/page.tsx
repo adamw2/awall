@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -6,8 +7,15 @@ export default function Home() {
       {/* Navbar */}
       <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-xl font-bold tracking-tight text-zinc-900">
-            WallOS
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/wallos-logo.png"
+              alt="WallOS"
+              width={140}
+              height={36}
+              className="h-9 w-auto"
+              priority
+            />
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             <Link href="#solutions" className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
@@ -420,8 +428,14 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
             <div>
-              <Link href="/" className="text-lg font-bold text-zinc-900">
-                WallOS
+              <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/wallos-logo.png"
+                  alt="WallOS"
+                  width={120}
+                  height={31}
+                  className="h-8 w-auto"
+                />
               </Link>
               <p className="mt-2 text-sm text-zinc-500">
                 The Operating System for Your Walls. Tiered subscription. All-inclusive. Ongoing training & support.

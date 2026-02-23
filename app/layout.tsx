@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "WallOS — The Operating System for Your Walls",
   description: "Enterprise-grade virtual wall infrastructure. Deploy, manage, and scale walls with confidence. SOC 2 Type II compliant.",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({
