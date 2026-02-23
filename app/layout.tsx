@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gallery Wall",
-  description: "Create your own virtual gallery wall with AI-generated images",
+  title: "WallOS — The Operating System for Your Walls",
+  description: "Enterprise-grade virtual wall infrastructure. Deploy, manage, and scale walls with confidence. SOC 2 Type II compliant.",
 };
 
 export default function RootLayout({
